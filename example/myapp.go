@@ -1,7 +1,6 @@
 package example
 
 import (
-	"fmt"
 	"io/ioutil"
 	"runtime"
 	"strings"
@@ -28,8 +27,7 @@ type HookFilter struct {
 
 func New(hook log.Hook) *HookFilter {
 	hf := &HookFilter{
-		Filter: filter.New(),
-		hook:   hook,
+		hook: hook,
 	}
 
 	// Load filters
@@ -38,16 +36,11 @@ func New(hook log.Hook) *HookFilter {
 		file2.go:warn,
 		github.com/torbensky/gofilelogger:panic
 	`
-	// Each log level mapping is separated by comma
-	for _, s := range strings.Split(filterExpr, ",") {
-		// Each file path is separated from log level by a ":"
-		pathAndLevel := strings.Split(strings.TrimSpace(s), ":")
-		l, err := log.ParseLevel(pathAndLevel[1])
-		if err == nil {
-			fmt.Printf("Setting %s to log at %s\n", pathAndLevel[0], l)
-			hf.Filter.SetLevel(l, pathAndLevel[0])
-		}
+	f, err := filter.LoadConfig(filterExpr)
+	if err != nil {
+		panic(err) // this is a demo!
 	}
+	hf.Filter = f
 
 	return hf
 }
