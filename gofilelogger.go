@@ -14,7 +14,7 @@ type LogFilter struct {
 	UseCache  bool      // whether or not to use a cache of filenames seen and the log levels found
 }
 
-func New() *LogFilter {
+func NewLogFilter() *LogFilter {
 	return &LogFilter{
 		config:    &sync.Map{},
 		fileCache: &sync.Map{},

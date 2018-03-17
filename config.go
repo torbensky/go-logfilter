@@ -8,7 +8,7 @@ import (
 )
 
 func LoadConfig(config string) (*LogFilter, error) {
-	lf := New()
+	lf := NewLogFilter()
 
 	// Each log level mapping is separated by comma
 	for _, s := range strings.Split(config, ",") {

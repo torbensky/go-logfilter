@@ -10,7 +10,7 @@ import (
 )
 
 func TestSetLevel(t *testing.T) {
-	lf := New()
+	lf := NewLogFilter()
 	_, filename, _, _ := runtime.Caller(0)
 
 	// Ensure the default level is working
@@ -42,7 +42,7 @@ func TestSetLevel(t *testing.T) {
 }
 
 func TestCacheOff(t *testing.T) {
-	lf := New()
+	lf := NewLogFilter()
 	lf.UseCache = false
 
 	lf.GetFileLevel("/foo/cache")
@@ -57,7 +57,7 @@ func TestCacheOff(t *testing.T) {
 }
 
 func TestCacheOn(t *testing.T) {
-	lf := New()
+	lf := NewLogFilter()
 
 	assert.False(t, checkCache(lf.fileCache, "/foo/cache"))
 	lf.GetFileLevel("/foo/cache")
