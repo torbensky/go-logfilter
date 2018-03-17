@@ -8,24 +8,35 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var loggerConfig = sync.Map{} // thread safe, more performant than using regular map with mutex, I think
-var fileCache = sync.Map{}
-var UseCache = true
+type LogFilter struct {
+	config    *sync.Map // thread safe map, from reading sounds like this should be more efficient than manually managing a mutex
+	fileCache *sync.Map // thread safe map, from reading sounds like this should be more efficient than manually managing a mutex
+	UseCache  bool      // whether or not to use a cache of filenames seen and the log levels found
+}
+
+func New() *LogFilter {
+	return &LogFilter{
+		config:    &sync.Map{},
+		fileCache: &sync.Map{},
+		UseCache:  true,
+	}
+}
 
 /*
 	Sets a log level for a path
 */
-func SetLevel(level logrus.Level, path string) {
-	loggerConfig.Store(path, level)
+func (lf *LogFilter) SetLevel(level logrus.Level, path string) {
+	lf.config.Store(path, level)
 
-	if !UseCache {
+	if !lf.UseCache {
 		return
 	}
 
 	// Bust the cache
-	fileCache.Range(func(f, v interface{}) bool {
+	lf.fileCache.Range(func(f, v interface{}) bool {
+		// A simple and aggressive prune, eliminating any possible match. Should at least be a superset of items affected by the new level setting.
 		if strings.Contains(f.(string), path) {
-			fileCache.Delete(f)
+			lf.fileCache.Delete(f)
 		}
 		return true
 	})
@@ -34,9 +45,9 @@ func SetLevel(level logrus.Level, path string) {
 /*
 	Sets a log level for each path provided
 */
-func SetLevels(level logrus.Level, paths ...string) {
+func (lf *LogFilter) SetLevels(level logrus.Level, paths ...string) {
 	for _, p := range paths {
-		SetLevel(level, p)
+		lf.SetLevel(level, p)
 	}
 }
 
@@ -47,9 +58,9 @@ func SetLevels(level logrus.Level, paths ...string) {
 
 	When multiple matches are possible, this will behave non-deterministically. This is based on the underlying map behavior.
 */
-func GetFileLevel(file string) logrus.Level {
+func (lf *LogFilter) GetFileLevel(file string) logrus.Level {
 	// Check if we already know the level for this file
-	cached, ok := fileCache.Load(file)
+	cached, ok := lf.fileCache.Load(file)
 	if ok {
 		return cached.(logrus.Level)
 	}
@@ -57,7 +68,7 @@ func GetFileLevel(file string) logrus.Level {
 	level := logrus.InfoLevel // default level if we don't find a match
 
 	dir := filepath.Dir(file)
-	loggerConfig.Range(func(k, v interface{}) bool {
+	lf.config.Range(func(k, v interface{}) bool {
 		// If we match a file exactly, immediately return
 		if strings.HasSuffix(file, k.(string)) {
 			level = v.(logrus.Level)
@@ -73,8 +84,8 @@ func GetFileLevel(file string) logrus.Level {
 	})
 
 	// Cache this result for faster lookup next time
-	if UseCache {
-		fileCache.Store(file, level)
+	if lf.UseCache {
+		lf.fileCache.Store(file, level)
 	}
 
 	return level
