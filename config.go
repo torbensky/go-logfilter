@@ -10,6 +10,11 @@ import (
 func LoadConfig(config string) (*LogFilter, error) {
 	lf := NewLogFilter()
 
+	// Allow empty configs
+	if len(strings.TrimSpace(config)) == 0 {
+		return lf, nil
+	}
+
 	// Each log level mapping is separated by comma
 	for _, s := range strings.Split(config, ",") {
 
