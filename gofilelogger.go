@@ -76,7 +76,7 @@ func (lf *LogFilter) GetFileLevel(file string) logrus.Level {
 		}
 
 		// If we find a directory match, just remember it in case we don't find a file match
-		if strings.HasSuffix(dir, k.(string)) {
+		if strings.Contains(dir, k.(string)) {
 			level = v.(logrus.Level)
 		}
 

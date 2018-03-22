@@ -10,11 +10,12 @@ import (
 	"sync"
 )
 
+var wg sync.WaitGroup
+
 func main() {
 	// Logging config
 	config := os.Getenv("LOG_LEVELS")
-	fmt.Println("Configuration:")
-	fmt.Println(config)
+	fmt.Printf("Configuration: \n%s\n", config)
 
 	// Set to debug so handlers are called at all levels to let our filters do a more granular log suppression.
 	log.SetLevel(log.DebugLevel)
@@ -24,7 +25,6 @@ func main() {
 	if err != nil {
 		panic(err) // demo!
 	}
-	fmt.Println(f)
 
 	// wrap the example hook with the hook filter
 	filteredHook := filter.NewHookFilter(aHook, f)
@@ -36,12 +36,12 @@ func main() {
 	log.SetOutput(ioutil.Discard)
 
 	// Run some async processes to simulate different system modules doing their thang
-	var wg sync.WaitGroup
 	wg.Add(3)
 
-	go Foo(wg)
-	go Bar(wg)
-	go Out(wg)
+	go Foo(&wg)
+	go Bar(&wg)
+	go Out(&wg)
 
 	wg.Wait()
+	log.Info("main done")
 }
