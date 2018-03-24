@@ -1,22 +1,25 @@
-package example
+package main
 
 import (
-	"io/ioutil"
-
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	filter "github.com/torbensky/go-logfilter"
+	"github.com/torbensky/go-logfilter/example"
+	"io/ioutil"
+	"os"
+	"sync"
 )
 
-func Run() {
-	config := `
-		file1.go:debug,
-		file2.go:warn,
-		github.com/torbensky/go-logfilter:panic
-	`
+var wg sync.WaitGroup
+
+func main() {
+	// Logging config
+	config := os.Getenv("LOG_LEVELS")
+	fmt.Printf("Configuration: \n%s\n", config)
 
 	// Set to debug so handlers are called at all levels to let our filters do a more granular log suppression.
 	log.SetLevel(log.DebugLevel)
-	aHook := ExampleHook{}
+	aHook := example.ExampleHook{}
 
 	f, err := filter.LoadConfig(config)
 	if err != nil {
@@ -32,7 +35,13 @@ func Run() {
 	// Discard the default library output
 	log.SetOutput(ioutil.Discard)
 
-	// Call some stuff that produces logs
-	Foo()
-	Bar()
+	// Run some async processes to simulate different system modules doing their thang
+	wg.Add(3)
+
+	go Foo(&wg)
+	go Bar(&wg)
+	go Out(&wg)
+
+	wg.Wait()
+	log.Info("main done")
 }

@@ -1,4 +1,4 @@
-package gofilelogger
+package logfilter
 
 import (
 	"runtime"
@@ -18,12 +18,12 @@ func TestSetLevel(t *testing.T) {
 	assert.Equal(t, l, logrus.InfoLevel)
 
 	// Ensure the level can be overridden for a package
-	lf.SetLevel(logrus.WarnLevel, "github.com/torbensky/gofilelogger")
+	lf.SetLevel(logrus.WarnLevel, "github.com/torbensky/go-logfilter")
 	l = lf.GetFileLevel(filename)
 	assert.Equal(t, logrus.WarnLevel, l, "package level")
 
 	// Ensure the level can be overridden for a file
-	lf.SetLevel(logrus.DebugLevel, "github.com/torbensky/gofilelogger/gofilelogger_test.go")
+	lf.SetLevel(logrus.DebugLevel, "github.com/torbensky/go-logfilter/go-logfilter_test.go")
 	l = lf.GetFileLevel(filename)
 	assert.Equal(t, logrus.DebugLevel, l, "file level")
 

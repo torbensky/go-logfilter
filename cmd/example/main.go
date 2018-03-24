@@ -1,6 +1,6 @@
 package main
 
-import "github.com/torbensky/gofilelogger/example"
+import "github.com/torbensky/go-logfilter/example"
 
 func main() {
 	example.Run()
