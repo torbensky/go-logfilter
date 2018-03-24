@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	filter "github.com/torbensky/gofilelogger"
-	"github.com/torbensky/gofilelogger/example"
+	filter "github.com/torbensky/go-logfilter"
+	"github.com/torbensky/go-logfilter/example"
 	"io/ioutil"
 	"os"
 	"sync"

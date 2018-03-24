@@ -1,4 +1,4 @@
-package gofilelogger
+package logfilter
 
 import (
 	"path/filepath"

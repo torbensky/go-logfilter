@@ -4,14 +4,14 @@ import (
 	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
-	filter "github.com/torbensky/gofilelogger"
+	filter "github.com/torbensky/go-logfilter"
 )
 
 func Run() {
 	config := `
 		file1.go:debug,
 		file2.go:warn,
-		github.com/torbensky/gofilelogger:panic
+		github.com/torbensky/go-logfilter:panic
 	`
 
 	// Set to debug so handlers are called at all levels to let our filters do a more granular log suppression.
